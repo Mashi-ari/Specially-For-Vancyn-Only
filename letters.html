@@ -1,69 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Letters</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <style>
-    body {
-      background-color: #fff8f0;
-      font-family: 'Segoe Script', cursive;
-    }
-  </style>
-</head>
-<body class="min-h-screen p-6">
-  <div class="max-w-xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
-    <h1 class="text-2xl font-bold mb-4 text-center">💌 Write a Letter</h1>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Letters for Us ✉️</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      getDocs,
+      serverTimestamp,
+      query,
+      orderBy
+    } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-    <input type="text" id="author" placeholder="Your name (optional)" class="w-full mb-3 px-4 py-2 border rounded-lg"/>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDraVz12WAFdE3wr6cEi1H3VUfu57NDbfw",
+      authDomain: "specially-for-vancyn-only.firebaseapp.com",
+      projectId: "specially-for-vancyn-only",
+      storageBucket: "specially-for-vancyn-only.appspot.com",
+      messagingSenderId: "862016241865",
+      appId: "1:862016241865:web:88020a06ce8fe884068d18",
+      measurementId: "G-2TD3PB38NW"
+    };
 
-    <textarea id="letter" rows="6" class="w-full p-3 border rounded-lg mb-4" placeholder="Write something special..."></textarea>
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    <button onclick="saveLetter()" class="bg-pink-400 hover:bg-pink-500 text-white font-semibold px-4 py-2 rounded-lg w-full mb-6">
-      Save Letter
-    </button>
+    const form = document.getElementById("letter-form");
+    const textarea = document.getElementById("letter-text");
+    const messagesDiv = document.getElementById("messages");
 
-    <h2 class="text-xl font-semibold mb-2">📚 Saved Letters</h2>
-    <div id="lettersList" class="space-y-4"></div>
-  </div>
-
-  <script>
-    const lettersList = document.getElementById("lettersList");
-
-    function saveLetter() {
-      const text = document.getElementById("letter").value;
-      const author = document.getElementById("author").value || "Anonymous";
-      const timestamp = new Date().toLocaleString();
-
-      if (!text.trim()) return alert("Please write something!");
-
-      const letterData = {
-        author,
-        text,
-        timestamp
-      };
-
-      let savedLetters = JSON.parse(localStorage.getItem("savedLetters")) || [];
-      savedLetters.unshift(letterData);
-      localStorage.setItem("savedLetters", JSON.stringify(savedLetters));
-
-      document.getElementById("letter").value = "";
-      document.getElementById("author").value = "";
-      showLetters();
+    async function loadMessages() {
+      messagesDiv.innerHTML = "<p>Loading letters...</p>";
+      const q = query(collection(db, "letters"), orderBy("timestamp", "desc"));
+      const querySnapshot = await getDocs(q);
+      messagesDiv.innerHTML = "";
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const date = data.timestamp?.toDate().toLocaleString() || "⏳";
+        const messageCard = `
+          <div class="bg-pink-100 p-4 rounded-2xl shadow-md mb-3">
+            <p class="whitespace-pre-wrap">${data.text}</p>
+            <p class="text-sm text-right text-gray-600 mt-2">${date}</p>
+          </div>
+        `;
+        messagesDiv.innerHTML += messageCard;
+      });
     }
 
-    function showLetters() {
-      const savedLetters = JSON.parse(localStorage.getItem("savedLetters")) || [];
-      lettersList.innerHTML = savedLetters.map(letter => `
-        <div class="bg-pink-100 p-4 rounded-xl shadow">
-          <p class="mb-2 whitespace-pre-wrap">"${letter.text}"</p>
-          <p class="text-sm text-right italic">– ${letter.author}, ${letter.timestamp}</p>
-        </div>
-      `).join('');
-    }
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const text = textarea.value.trim();
+      if (text) {
+        await addDoc(collection(db, "letters"), {
+          text,
+          timestamp: serverTimestamp(),
+        });
+        textarea.value = "";
+        loadMessages();
+      }
+    });
 
-    showLetters();
+    loadMessages();
   </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-pink-50 font-sans min-h-screen flex flex-col items-center p-6">
+  <h1 class="text-3xl font-bold text-pink-600 mb-4">💌 Letters for Us</h1>
+
+  <form id="letter-form" class="w-full max-w-lg">
+    <textarea id="letter-text" required placeholder="Write a letter..."
+      class="w-full h-32 p-4 rounded-xl border border-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-400"></textarea>
+    <button type="submit"
+      class="mt-3 px-6 py-2 bg-pink-400 text-white rounded-full hover:bg-pink-500 transition-all">Send Letter</button>
+  </form>
+
+  <div id="messages" class="w-full max-w-lg mt-6"></div>
 </body>
+
 </html>
