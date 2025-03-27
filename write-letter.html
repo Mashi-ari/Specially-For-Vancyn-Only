@@ -2,65 +2,79 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Write a Letter</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Write a Letter 💌</title>
+  <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
   <style>
     body {
-      background-color: #fff1f7;
-      font-family: "Comic Sans MS", cursive, sans-serif;
-      padding: 2rem;
-      color: #e91e63;
+      font-family: 'Indie Flower', cursive;
+      background: linear-gradient(to bottom right, #cce0ff, #e6f0ff);
+      color: #333;
+      padding: 30px;
+      text-align: center;
     }
 
     h1 {
-      text-align: center;
-      font-size: 2rem;
-      margin-bottom: 1.5rem;
+      color: #4a90e2;
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+    }
+
+    form {
+      background: white;
+      border-radius: 20px;
+      padding: 25px;
+      max-width: 600px;
+      margin: 0 auto;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     }
 
     input, textarea {
-      display: block;
       width: 100%;
-      max-width: 500px;
-      margin: 1rem auto;
-      padding: 1rem;
+      padding: 12px;
+      margin: 10px 0;
+      border: 2px solid #b3d1ff;
       border-radius: 12px;
-      border: 1px solid #f48fb1;
       font-size: 1rem;
     }
 
     button {
-      display: block;
-      margin: 1rem auto;
-      padding: 0.7rem 2rem;
-      font-size: 1rem;
-      border: none;
-      border-radius: 999px;
-      background-color: #f06292;
+      background-color: #4a90e2;
       color: white;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 15px;
+      font-size: 1.2rem;
       cursor: pointer;
-      transition: 0.3s;
+      transition: background 0.3s;
     }
 
     button:hover {
-      background-color: #ec407a;
+      background-color: #357abd;
+    }
+
+    .heart {
+      font-size: 1.5rem;
+      color: #ff80bf;
+      margin: 10px;
     }
   </style>
 </head>
 <body>
-  <h1>💌 Write a Letter</h1>
+  <h1>💙 Write a Letter for Us 💙</h1>
 
-  <input type="text" id="fromName" placeholder="From: Your name" required />
-  <input type="text" id="toName" placeholder="To: Recipient's name" required />
-  <textarea id="letterText" rows="8" placeholder="Write your letter here..."></textarea>
-  <button onclick="sendLetter()">Send Letter</button>
+  <form id="letterForm">
+    <input type="text" id="fromName" placeholder="From: Your name..." required />
+    <input type="text" id="toName" placeholder="To: Recipient's name..." required />
+    <input type="datetime-local" id="dateTime" required />
+    <textarea id="letterContent" placeholder="Write your letter here..." rows="10" required></textarea>
+    <button type="submit">Send Letter 💌</button>
+  </form>
 
-  <!-- Firebase -->
   <script type="module">
-    // Firebase config
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+    // Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "YOUR_API_KEY",
@@ -68,45 +82,31 @@
       databaseURL: "YOUR_DATABASE_URL",
       projectId: "YOUR_PROJECT_ID",
       storageBucket: "YOUR_STORAGE_BUCKET",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      messagingSenderId: "YOUR_SENDER_ID",
       appId: "YOUR_APP_ID"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Send Letter
-    window.sendLetter = function () {
-      const from = document.getElementById("fromName").value.trim();
-      const to = document.getElementById("toName").value.trim();
-      const text = document.getElementById("letterText").value.trim();
+    document.getElementById("letterForm").addEventListener("submit", function(e) {
+      e.preventDefault();
 
-      if (!from || !to || !text) {
-        alert("Please fill in all fields.");
-        return;
-      }
+      const fromName = document.getElementById("fromName").value;
+      const toName = document.getElementById("toName").value;
+      const dateTime = document.getElementById("dateTime").value;
+      const content = document.getElementById("letterContent").value;
 
-      const now = new Date();
-      const formattedDate = now.toLocaleString();
-
-      const letter = {
-        from,
-        to,
-        text,
-        date: formattedDate
-      };
-
-      push(ref(db, "letters"), letter)
-        .then(() => {
-          alert("Letter sent successfully!");
-          document.getElementById("fromName").value = "";
-          document.getElementById("toName").value = "";
-          document.getElementById("letterText").value = "";
-        })
-        .catch((error) => {
-          console.error("Error sending letter:", error);
-        });
-    };
+      push(ref(db, 'letters/'), {
+        from: fromName,
+        to: toName,
+        datetime: dateTime,
+        content: content
+      }).then(() => {
+        alert("Letter sent successfully 💙");
+        document.getElementById("letterForm").reset();
+      });
+    });
   </script>
 </body>
 </html>
