@@ -1,0 +1,63 @@
+body {
+  margin: 0;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  background: linear-gradient(to bottom right, #ffe4e1, #e0ffff);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+.container {
+  text-align: center;
+  background: white;
+  padding: 2rem;
+  border-radius: 2rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+input {
+  padding: 0.5rem;
+  border: 2px solid #ffb6c1;
+  border-radius: 1rem;
+}
+button {
+  padding: 0.5rem 1rem;
+  background-color: #ffb6c1;
+  border: none;
+  border-radius: 1rem;
+  cursor: pointer;
+  margin-left: 0.5rem;
+}
+.clue {
+  margin-top: 1rem;
+  color: #888;
+  font-style: italic;
+}
+.main-page {
+  flex-direction: column;
+  padding: 2rem;
+}
+.letter-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 2rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  text-align: center;
+  max-width: 600px;
+}
+.nav-buttons {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.nav-buttons a {
+  text-decoration: none;
+  color: white;
+  background-color: #ff69b4;
+  padding: 0.75rem;
+  border-radius: 1rem;
+  transition: background 0.3s ease;
+}
+.nav-buttons a:hover {
+  background-color: #ff1493;
+}
