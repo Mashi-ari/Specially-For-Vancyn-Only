@@ -7,10 +7,10 @@
   <link rel="stylesheet" href="style.css" />
   <style>
     body {
-      background-color: #fff0f5;
-      font-family: 'Comic Sans MS', 'Segoe UI', sans-serif;
+      background-color: #fff1f7;
+      font-family: "Comic Sans MS", cursive, sans-serif;
       padding: 2rem;
-      color: #d63384;
+      color: #e91e63;
     }
 
     h1 {
@@ -19,105 +19,94 @@
       margin-bottom: 1.5rem;
     }
 
-    form {
-      background-color: #ffe3f0;
-      padding: 2rem;
-      border-radius: 20px;
-      max-width: 700px;
-      margin: 0 auto;
-      box-shadow: 0 4px 8px rgba(255, 182, 193, 0.4);
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    input, textarea, button {
-      font-family: inherit;
-      font-size: 1rem;
-      border-radius: 10px;
-      border: 1px solid #ff99cc;
-      padding: 0.8rem;
+    input, textarea {
+      display: block;
       width: 100%;
-      box-sizing: border-box;
+      max-width: 500px;
+      margin: 1rem auto;
+      padding: 1rem;
+      border-radius: 12px;
+      border: 1px solid #f48fb1;
+      font-size: 1rem;
     }
 
     button {
-      background-color: #ff99cc;
+      display: block;
+      margin: 1rem auto;
+      padding: 0.7rem 2rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 999px;
+      background-color: #f06292;
       color: white;
-      font-weight: bold;
       cursor: pointer;
-      transition: background-color 0.3s;
+      transition: 0.3s;
     }
 
     button:hover {
-      background-color: #e073a7;
-    }
-
-    label {
-      font-weight: bold;
-      color: #b6006d;
+      background-color: #ec407a;
     }
   </style>
-
-  <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDraVz12WMdE3wr6cI1iH3VUfu57NDbfw",
-      authDomain: "specially-for-vancyn-only.firebaseapp.com",
-      projectId: "specially-for-vancyn-only",
-      storageBucket: "specially-for-vancyn-only.appspot.com",
-      messagingSenderId: "862016241865",
-      appId: "1:862016241865:web:88002a06ce8fe884068d18",
-      measurementId: "G-2TD3PB38NW"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    document.getElementById("letterForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const from = document.getElementById("from").value.trim();
-      const to = document.getElementById("to").value.trim();
-      const content = document.getElementById("content").value.trim();
-
-      if (!from || !to || !content) {
-        alert("Please fill out all fields ✨");
-        return;
-      }
-
-      try {
-        await addDoc(collection(db, "letters"), {
-          from,
-          to,
-          content,
-          timestamp: serverTimestamp()
-        });
-        alert("Letter sent successfully! 💌");
-        document.getElementById("letterForm").reset();
-      } catch (error) {
-        console.error("Error writing letter:", error);
-        alert("Oops! Something went wrong. Please try again.");
-      }
-    });
-  </script>
 </head>
 <body>
   <h1>💌 Write a Letter</h1>
-  <form id="letterForm">
-    <label for="from">From:</label>
-    <input type="text" id="from" placeholder="Your name..." required />
 
-    <label for="to">To:</label>
-    <input type="text" id="to" placeholder="Recipient's name..." required />
+  <input type="text" id="fromName" placeholder="From: Your name" required />
+  <input type="text" id="toName" placeholder="To: Recipient's name" required />
+  <textarea id="letterText" rows="8" placeholder="Write your letter here..."></textarea>
+  <button onclick="sendLetter()">Send Letter</button>
 
-    <label for="content">Letter:</label>
-    <textarea id="content" rows="8" placeholder="Write something from the heart..." required></textarea>
+  <!-- Firebase -->
+  <script type="module">
+    // Firebase config
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-    <button type="submit">Send Letter 💖</button>
-  </form>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      databaseURL: "YOUR_DATABASE_URL",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Send Letter
+    window.sendLetter = function () {
+      const from = document.getElementById("fromName").value.trim();
+      const to = document.getElementById("toName").value.trim();
+      const text = document.getElementById("letterText").value.trim();
+
+      if (!from || !to || !text) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      const now = new Date();
+      const formattedDate = now.toLocaleString();
+
+      const letter = {
+        from,
+        to,
+        text,
+        date: formattedDate
+      };
+
+      push(ref(db, "letters"), letter)
+        .then(() => {
+          alert("Letter sent successfully!");
+          document.getElementById("fromName").value = "";
+          document.getElementById("toName").value = "";
+          document.getElementById("letterText").value = "";
+        })
+        .catch((error) => {
+          console.error("Error sending letter:", error);
+        });
+    };
+  </script>
 </body>
 </html>
