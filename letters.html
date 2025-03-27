@@ -1,17 +1,69 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Letters</title>
-  <link rel="stylesheet" href="style.css"/>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #fff8f0;
+      font-family: 'Segoe Script', cursive;
+    }
+  </style>
 </head>
-<body>
-  <div class="container">
-    <h1>💌 Letters</h1>
-    <p>Here are all the sweet letters we've shared with each other. 💖</p>
-    <a href="main.html" class="back-button">← Back to Home</a>
+<body class="min-h-screen p-6">
+  <div class="max-w-xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
+    <h1 class="text-2xl font-bold mb-4 text-center">💌 Write a Letter</h1>
+
+    <input type="text" id="author" placeholder="Your name (optional)" class="w-full mb-3 px-4 py-2 border rounded-lg"/>
+
+    <textarea id="letter" rows="6" class="w-full p-3 border rounded-lg mb-4" placeholder="Write something special..."></textarea>
+
+    <button onclick="saveLetter()" class="bg-pink-400 hover:bg-pink-500 text-white font-semibold px-4 py-2 rounded-lg w-full mb-6">
+      Save Letter
+    </button>
+
+    <h2 class="text-xl font-semibold mb-2">📚 Saved Letters</h2>
+    <div id="lettersList" class="space-y-4"></div>
   </div>
+
+  <script>
+    const lettersList = document.getElementById("lettersList");
+
+    function saveLetter() {
+      const text = document.getElementById("letter").value;
+      const author = document.getElementById("author").value || "Anonymous";
+      const timestamp = new Date().toLocaleString();
+
+      if (!text.trim()) return alert("Please write something!");
+
+      const letterData = {
+        author,
+        text,
+        timestamp
+      };
+
+      let savedLetters = JSON.parse(localStorage.getItem("savedLetters")) || [];
+      savedLetters.unshift(letterData);
+      localStorage.setItem("savedLetters", JSON.stringify(savedLetters));
+
+      document.getElementById("letter").value = "";
+      document.getElementById("author").value = "";
+      showLetters();
+    }
+
+    function showLetters() {
+      const savedLetters = JSON.parse(localStorage.getItem("savedLetters")) || [];
+      lettersList.innerHTML = savedLetters.map(letter => `
+        <div class="bg-pink-100 p-4 rounded-xl shadow">
+          <p class="mb-2 whitespace-pre-wrap">"${letter.text}"</p>
+          <p class="text-sm text-right italic">– ${letter.author}, ${letter.timestamp}</p>
+        </div>
+      `).join('');
+    }
+
+    showLetters();
+  </script>
 </body>
 </html>
