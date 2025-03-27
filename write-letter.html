@@ -1,17 +1,89 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>Write a Letter</title>
-  <link rel="stylesheet" href="style.css"/>
+  <style>
+    body {
+      background-color: #ffeef2;
+      font-family: 'Segoe Script', cursive;
+      text-align: center;
+      padding: 40px;
+    }
+
+    textarea {
+      width: 90%;
+      height: 200px;
+      padding: 15px;
+      border-radius: 15px;
+      border: 1px solid #ccc;
+      font-family: 'Segoe Script', cursive;
+      background: #fff8f8;
+      font-size: 16px;
+      resize: none;
+    }
+
+    button {
+      background-color: #ffb6c1;
+      color: #fff;
+      border: none;
+      padding: 12px 25px;
+      margin-top: 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: 'Segoe Script', cursive;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #ff91ac;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>✉️ Write a Letter</h1>
-    <p>Write a letter for the future us. One day we'll read it together 📝</p>
-    <a href="main.html" class="back-button">← Back to Home</a>
-  </div>
+  <h1>💌 Write a Letter 💌</h1>
+
+  <textarea id="letterInput" placeholder="Write your heartfelt message here..."></textarea>
+  <br>
+  <button onclick="saveLetter()">Save Letter</button>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyB1QR1yzTnToUKmpQQ0d5OEQ0dGQO6S6YM",
+      authDomain: "specially-for-vancyn-only.firebaseapp.com",
+      projectId: "specially-for-vancyn-only",
+      storageBucket: "specially-for-vancyn-only.appspot.com",
+      messagingSenderId: "862016241865",
+      appId: "1:862016241865:web:88020a06ce8fe884068d18",
+      measurementId: "G-2TD3PB38NW"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function saveLetter() {
+      const letterText = document.getElementById('letterInput').value;
+      if (!letterText) {
+        alert("Please write something!");
+        return;
+      }
+
+      try {
+        await addDoc(collection(db, "letters"), {
+          text: letterText,
+          timestamp: serverTimestamp()
+        });
+        alert("Letter saved! 💌");
+        document.getElementById('letterInput').value = '';
+      } catch (e) {
+        console.error("Error saving letter:", e);
+        alert("Something went wrong. Try again.");
+      }
+    }
+  </script>
 </body>
 </html>
