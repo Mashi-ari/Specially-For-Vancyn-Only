@@ -1,78 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Letters</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Write a Letter</title>
+  <link rel="stylesheet" href="style.css" />
   <style>
     body {
-      background-color: #fff0f5;
-      font-family: 'Segoe Script', cursive;
-      padding: 30px;
+      background-color: #fff4fa;
+      font-family: 'Comic Sans MS', 'Segoe UI', sans-serif;
+      color: #d63384;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
     }
 
     h1 {
-      text-align: center;
-      margin-bottom: 30px;
+      font-size: 2rem;
+      margin-bottom: 1rem;
     }
 
-    .letter-card {
-      background: #fff8f8;
+    textarea {
+      width: 90%;
+      max-width: 600px;
+      height: 150px;
+      border: 2px solid #ff9ad5;
       border-radius: 15px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      font-size: 16px;
+      padding: 1rem;
+      font-size: 1rem;
+      resize: none;
+      outline: none;
     }
 
-    .letter-card small {
-      display: block;
-      margin-top: 10px;
-      color: #888;
-      font-size: 12px;
+    button {
+      margin-top: 1rem;
+      padding: 0.8rem 2rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 25px;
+      background: linear-gradient(145deg, #ff82c2, #ff5ea6);
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    .success-message {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: green;
     }
   </style>
-</head>
-<body>
-  <h1>📜 Your Letters</h1>
-  <div id="lettersContainer"></div>
 
+  <!-- Firebase SDKs -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyB1QR1yzTnToUKmpQQ0d5OEQ0dGQO6S6YM",
+      apiKey: "AIzaSyDraVz12WMdE3wr6cI1iH3VUfu57NDbfw",
       authDomain: "specially-for-vancyn-only.firebaseapp.com",
       projectId: "specially-for-vancyn-only",
       storageBucket: "specially-for-vancyn-only.appspot.com",
       messagingSenderId: "862016241865",
-      appId: "1:862016241865:web:88020a06ce8fe884068d18",
+      appId: "1:862016241865:web:88002a06ce8fe884068d18",
       measurementId: "G-2TD3PB38NW"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    async function loadLetters() {
-      const lettersContainer = document.getElementById('lettersContainer');
-      const q = query(collection(db, "letters"), orderBy("timestamp", "desc"));
-      const snapshot = await getDocs(q);
+    async function sendLetter() {
+      const content = document.getElementById("letterInput").value.trim();
+      const message = document.getElementById("successMessage");
 
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        const date = data.timestamp?.toDate().toLocaleString() || "Unknown date";
+      if (content === "") {
+        alert("Please write something first!");
+        return;
+      }
 
-        const letterDiv = document.createElement("div");
-        letterDiv.classList.add("letter-card");
-        letterDiv.innerHTML = `
-          <p>${data.text}</p>
-          <small>🕒 Written on: ${date}</small>
-        `;
-        lettersContainer.appendChild(letterDiv);
-      });
+      try {
+        await addDoc(collection(db, "letters"), {
+          content,
+          timestamp: serverTimestamp()
+        });
+        message.textContent = "Letter sent successfully! 💌";
+        document.getElementById("letterInput").value = "";
+      } catch (error) {
+        console.error("Error sending letter: ", error);
+        message.textContent = "Something went wrong. Please try again.";
+      }
     }
-
-    loadLetters();
   </script>
+</head>
+<body>
+  <h1>💖 Write a Letter</h1>
+  <textarea id="letterInput" placeholder="Write a letter..."></textarea>
+  <button onclick="sendLetter()">Send Letter</button>
+  <div class="success-message" id="successMessage"></div>
 </body>
 </html>
