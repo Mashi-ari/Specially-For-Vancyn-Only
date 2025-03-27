@@ -1,89 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Write a Letter</title>
+  <link rel="stylesheet" href="style.css" />
   <style>
     body {
-      background-color: #ffeef2;
-      font-family: 'Segoe Script', cursive;
-      text-align: center;
-      padding: 40px;
+      background-color: #fff4fa;
+      font-family: 'Comic Sans MS', 'Segoe UI', sans-serif;
+      color: #d63384;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    input, textarea {
+      width: 90%;
+      max-width: 600px;
+      margin-bottom: 1rem;
+      border: 2px solid #ff9ad5;
+      border-radius: 15px;
+      padding: 1rem;
+      font-size: 1rem;
+      outline: none;
     }
 
     textarea {
-      width: 90%;
-      height: 200px;
-      padding: 15px;
-      border-radius: 15px;
-      border: 1px solid #ccc;
-      font-family: 'Segoe Script', cursive;
-      background: #fff8f8;
-      font-size: 16px;
+      height: 150px;
       resize: none;
     }
 
     button {
-      background-color: #ffb6c1;
-      color: #fff;
+      padding: 0.8rem 2rem;
+      font-size: 1rem;
       border: none;
-      padding: 12px 25px;
-      margin-top: 20px;
-      border-radius: 12px;
+      border-radius: 25px;
+      background: linear-gradient(145deg, #ff82c2, #ff5ea6);
+      color: white;
       cursor: pointer;
-      font-family: 'Segoe Script', cursive;
-      font-size: 16px;
-      transition: background-color 0.3s;
+      transition: transform 0.2s ease;
     }
 
     button:hover {
-      background-color: #ff91ac;
+      transform: scale(1.05);
+    }
+
+    .success-message {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: green;
     }
   </style>
-</head>
-<body>
-  <h1>💌 Write a Letter 💌</h1>
 
-  <textarea id="letterInput" placeholder="Write your heartfelt message here..."></textarea>
-  <br>
-  <button onclick="saveLetter()">Save Letter</button>
-
+  <!-- Firebase SDKs -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyB1QR1yzTnToUKmpQQ0d5OEQ0dGQO6S6YM",
+      apiKey: "AIzaSyDraVz12WMdE3wr6cI1iH3VUfu57NDbfw",
       authDomain: "specially-for-vancyn-only.firebaseapp.com",
       projectId: "specially-for-vancyn-only",
       storageBucket: "specially-for-vancyn-only.appspot.com",
       messagingSenderId: "862016241865",
-      appId: "1:862016241865:web:88020a06ce8fe884068d18",
+      appId: "1:862016241865:web:88002a06ce8fe884068d18",
       measurementId: "G-2TD3PB38NW"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    async function saveLetter() {
-      const letterText = document.getElementById('letterInput').value;
-      if (!letterText) {
-        alert("Please write something!");
+    async function sendLetter() {
+      const fromName = document.getElementById("fromInput").value.trim();
+      const toName = document.getElementById("toInput").value.trim();
+      const content = document.getElementById("letterInput").value.trim();
+      const message = document.getElementById("successMessage");
+
+      if (fromName === "" || toName === "" || content === "") {
+        alert("Please fill in all the fields!");
         return;
       }
 
       try {
         await addDoc(collection(db, "letters"), {
-          text: letterText,
+          from: fromName,
+          to: toName,
+          content,
           timestamp: serverTimestamp()
         });
-        alert("Letter saved! 💌");
-        document.getElementById('letterInput').value = '';
-      } catch (e) {
-        console.error("Error saving letter:", e);
-        alert("Something went wrong. Try again.");
+        message.textContent = "Letter sent successfully! 💌";
+        document.getElementById("fromInput").value = "";
+        document.getElementById("toInput").value = "";
+        document.getElementById("letterInput").value = "";
+      } catch (error) {
+        console.error("Error sending letter: ", error);
+        message.textContent = "Something went wrong. Please try again.";
       }
     }
   </script>
+</head>
+<body>
+  <h1>💖 Write a Letter</h1>
+  <input type="text" id="fromInput" placeholder="From: Your name..." />
+  <input type="text" id="toInput" placeholder="To: Recipient's name..." />
+  <textarea id="letterInput" placeholder="Write your letter here..."></textarea>
+  <button onclick="sendLetter()">Send Letter</button>
+  <div class="success-message" id="successMessage"></div>
 </body>
 </html>
