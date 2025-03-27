@@ -7,59 +7,59 @@
   <link rel="stylesheet" href="style.css" />
   <style>
     body {
-      background-color: #fff4fa;
+      background-color: #fff0f5;
       font-family: 'Comic Sans MS', 'Segoe UI', sans-serif;
-      color: #d63384;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       padding: 2rem;
+      color: #d63384;
     }
 
     h1 {
+      text-align: center;
       font-size: 2rem;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
     }
 
-    input, textarea {
-      width: 90%;
-      max-width: 600px;
-      margin-bottom: 1rem;
-      border: 2px solid #ff9ad5;
-      border-radius: 15px;
-      padding: 1rem;
+    form {
+      background-color: #ffe3f0;
+      padding: 2rem;
+      border-radius: 20px;
+      max-width: 700px;
+      margin: 0 auto;
+      box-shadow: 0 4px 8px rgba(255, 182, 193, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    input, textarea, button {
+      font-family: inherit;
       font-size: 1rem;
-      outline: none;
-    }
-
-    textarea {
-      height: 150px;
-      resize: none;
+      border-radius: 10px;
+      border: 1px solid #ff99cc;
+      padding: 0.8rem;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     button {
-      padding: 0.8rem 2rem;
-      font-size: 1rem;
-      border: none;
-      border-radius: 25px;
-      background: linear-gradient(145deg, #ff82c2, #ff5ea6);
+      background-color: #ff99cc;
       color: white;
+      font-weight: bold;
       cursor: pointer;
-      transition: transform 0.2s ease;
+      transition: background-color 0.3s;
     }
 
     button:hover {
-      transform: scale(1.05);
+      background-color: #e073a7;
     }
 
-    .success-message {
-      margin-top: 1rem;
-      font-size: 0.9rem;
-      color: green;
+    label {
+      font-weight: bold;
+      color: #b6006d;
     }
   </style>
 
-  <!-- Firebase SDKs -->
+  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
@@ -77,41 +77,47 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    async function sendLetter() {
-      const fromName = document.getElementById("fromInput").value.trim();
-      const toName = document.getElementById("toInput").value.trim();
-      const content = document.getElementById("letterInput").value.trim();
-      const message = document.getElementById("successMessage");
+    document.getElementById("letterForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-      if (fromName === "" || toName === "" || content === "") {
-        alert("Please fill in all the fields!");
+      const from = document.getElementById("from").value.trim();
+      const to = document.getElementById("to").value.trim();
+      const content = document.getElementById("content").value.trim();
+
+      if (!from || !to || !content) {
+        alert("Please fill out all fields ✨");
         return;
       }
 
       try {
         await addDoc(collection(db, "letters"), {
-          from: fromName,
-          to: toName,
+          from,
+          to,
           content,
           timestamp: serverTimestamp()
         });
-        message.textContent = "Letter sent successfully! 💌";
-        document.getElementById("fromInput").value = "";
-        document.getElementById("toInput").value = "";
-        document.getElementById("letterInput").value = "";
+        alert("Letter sent successfully! 💌");
+        document.getElementById("letterForm").reset();
       } catch (error) {
-        console.error("Error sending letter: ", error);
-        message.textContent = "Something went wrong. Please try again.";
+        console.error("Error writing letter:", error);
+        alert("Oops! Something went wrong. Please try again.");
       }
-    }
+    });
   </script>
 </head>
 <body>
-  <h1>💖 Write a Letter</h1>
-  <input type="text" id="fromInput" placeholder="From: Your name..." />
-  <input type="text" id="toInput" placeholder="To: Recipient's name..." />
-  <textarea id="letterInput" placeholder="Write your letter here..."></textarea>
-  <button onclick="sendLetter()">Send Letter</button>
-  <div class="success-message" id="successMessage"></div>
+  <h1>💌 Write a Letter</h1>
+  <form id="letterForm">
+    <label for="from">From:</label>
+    <input type="text" id="from" placeholder="Your name..." required />
+
+    <label for="to">To:</label>
+    <input type="text" id="to" placeholder="Recipient's name..." required />
+
+    <label for="content">Letter:</label>
+    <textarea id="content" rows="8" placeholder="Write something from the heart..." required></textarea>
+
+    <button type="submit">Send Letter 💖</button>
+  </form>
 </body>
 </html>
